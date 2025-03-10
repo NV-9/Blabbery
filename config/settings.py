@@ -4,13 +4,16 @@ from decouple import config, Csv
 # File Paths
 BASE_DIR = Path(__file__).resolve().parent.parent
 APPS_DIR = BASE_DIR / 'apps'
+
+# Folder Paths
 STATIC_ROOT = config('BLABBERY_STATIC_ROOT', default = BASE_DIR / 'static')
-MEDIA_ROOT = config('BLABBERY_MEDIA_ROOT', default = BASE_DIR / 'media')
+MEDIA_ROOT  = config('BLABBERY_MEDIA_ROOT', default = BASE_DIR / 'media')
 
 # URL Paths
-ADMIN_URL = config('BLABBERY_ADMIN_URL', default = 'admin/')
+ADMIN_URL  = config('BLABBERY_ADMIN_URL', default = 'admin/')
+API_URL    = config('BLABBERY_API_URL', default = 'api/')
 STATIC_URL = config('BLABBERY_STATIC_URL', default = 'static/')
-MEDIA_URL = config('BLABBERY_MEDIA_URL', default = 'media/')
+MEDIA_URL  = config('BLABBERY_MEDIA_URL', default = 'media/')
 
 # Configuration Paths
 ROOT_URLCONF = 'config.urls'
@@ -31,13 +34,16 @@ DEFAULT_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
-THIRD_PARTY_APPS = []
+THIRD_PARTY_APPS = [
+    'drf_material',
+    'rest_framework',
+]
 ORDER_FIRST_APPS = [
     'jet.dashboard',
     'jet',
 ]
 LOCAL_APPS = [
-    'apps.blabbery',
+    'blabbery',
 ]
 INSTALLED_APPS = ORDER_FIRST_APPS + DEFAULT_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
