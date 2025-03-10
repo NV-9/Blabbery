@@ -1,0 +1,23 @@
+
+services:
+  backend:
+    container_name: blabber_backend
+    image: blabber_backend
+    restart: always
+    build:
+      context: .
+      dockerfile: ./compose/dev/django/Dockerfile
+    volumes:
+      - .:/app
+    ports:
+      - 8000:8000
+  
+  redis:
+    container_name: blabber_redis
+    image: redis:alpine
+    restart: always
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:
