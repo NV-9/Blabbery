@@ -21,7 +21,7 @@ DEBUG = config('BLABBERY_DEBUG', default = False, cast = bool)
 ALLOWED_HOSTS = config('BLABBERY_ALLOWED_HOSTS', cast = Csv())
 
 # Apps
-INSTALLED_APPS = [
+DEFAULT_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -29,7 +29,17 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
+THIRD_PARTY_APPS = []
+ORDER_FIRST_APPS = [
+    'jet.dashboard',
+    'jet',
+]
+LOCAL_APPS = [
+    'apps.blabbery',
+]
+INSTALLED_APPS = ORDER_FIRST_APPS + DEFAULT_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
+# Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -40,6 +50,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# Template Settings
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -65,7 +76,8 @@ DATABASES = {
     }
 }
 
-# Password validation
+# Users and Authentication
+AUTH_USER_MODEL = "blabbery.User"
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
