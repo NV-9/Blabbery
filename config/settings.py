@@ -4,6 +4,8 @@ from decouple import config, Csv
 # File Paths
 BASE_DIR = Path(__file__).resolve().parent.parent
 APPS_DIR = BASE_DIR / 'apps'
+STATIC_ROOT = config('BLABBERY_STATIC_ROOT', default = BASE_DIR / 'static')
+MEDIA_ROOT = config('BLABBERY_MEDIA_ROOT', default = BASE_DIR / 'media')
 
 # URL Paths
 ADMIN_URL = config('BLABBERY_ADMIN_URL', default = 'admin/')
