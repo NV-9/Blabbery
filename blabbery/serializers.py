@@ -1,5 +1,45 @@
 from rest_framework import serializers
-from blabbery.models import User
+from blabbery.models import BaseChat, DirectChat, GroupChat, Message, User
+
+class BaseChatSerializer(serializers.ModelSerializer):
+    """
+    BaseChat serializer
+    """
+
+    class Meta:
+        model = BaseChat
+        fields = ['id', 'room_uuid', 'limit']
+        read_only_fields = ['id', 'room_uuid']
+
+class DirectChatSerializer(serializers.ModelSerializer):
+    """
+    DirectChat serializer
+    """
+    
+    class Meta:
+        model = DirectChat
+        fields = ['id', 'room_uuid', 'limit', 'users', 'online']
+        read_only_fields = ['id', 'room_uuid']
+
+class GroupChatSerializer(serializers.ModelSerializer):
+    """
+    GroupChat serializer
+    """
+
+    class Meta:
+        model = GroupChat
+        fields = ['id', 'room_uuid', 'limit', 'name', 'users', 'online', 'staff', 'rules', 'code']
+        read_only_fields = ['id', 'room_uuid']
+
+class MessageSerializer(serializers.ModelSerializer):
+    """
+    Message serializer
+    """
+
+    class Meta:
+        model = Message
+        fields = ['id', 'message_uuid', 'chat', 'user', 'content', 'timestamp']
+        read_only_fields = ['id', 'message_uuid', 'timestamp']
 
 class UserSerializer(serializers.ModelSerializer):
     """
