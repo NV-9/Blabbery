@@ -25,6 +25,9 @@ SECRET_KEY = config('BLABBERY_SECRET_KEY')
 DEBUG = config('BLABBERY_DEBUG', default = False, cast = bool)
 ALLOWED_HOSTS = config('BLABBERY_ALLOWED_HOSTS', cast = Csv())
 
+# Misc Settings
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 # Apps
 DEFAULT_APPS = [
     'django.contrib.admin',
@@ -37,10 +40,14 @@ DEFAULT_APPS = [
 THIRD_PARTY_APPS = [
     'drf_material',
     'rest_framework',
+    'corsheaders',
+    'django_filters',
+    'django_celery_results',
 ]
 ORDER_FIRST_APPS = [
     'jet.dashboard',
     'jet',
+    'daphne',
 ]
 LOCAL_APPS = [
     'blabbery',
@@ -49,7 +56,9 @@ INSTALLED_APPS = ORDER_FIRST_APPS + DEFAULT_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 # Middleware
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -106,3 +115,28 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
+
+
+# REST FRAMEWORK
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ],
+}
+
+# CHANNELS
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [(config("REDIS_HOST", default = 'localhost'), config("REDIS_PORT", default = 6379, cast = int))],
+        },
+    },
+}
