@@ -19,5 +19,18 @@ services:
     volumes:
       - redis-data:/data
 
+  frontend: 
+    container_name: blabber_frontend
+    image: blabber_frontend
+    restart: always
+    build:
+      context: .
+      dockerfile: ./compose/dev/node/Dockerfile
+    volumes:
+      - ./front/web/:/app
+      - /app/node_modules
+    ports:
+      - 5173:5173
+
 volumes:
   redis-data:
