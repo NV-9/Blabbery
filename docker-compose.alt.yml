@@ -64,5 +64,6 @@ volumes:
 networks:
   blabbery_network: 
     driver: bridge
+    internal: true
   proxy:
     external: true

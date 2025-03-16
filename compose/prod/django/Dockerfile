@@ -26,7 +26,7 @@ WORKDIR /app
 COPY ./requirements /app/
 RUN pip install --upgrade pip && pip install -r prod.txt
 
-COPY --from=node /app/build /app/static/
+COPY --from=node /app/build /app/build
 COPY ./ /app
 
 COPY ./compose/prod/django/start /start
