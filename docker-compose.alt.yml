@@ -17,25 +17,6 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
     networks:
       - blabbery_network
-
-  reverse-proxy:
-    image: traefik:v3.1
-    command:
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
-      - "--certificatesresolvers.webresolver.acme.tlschallenge=true"
-      - "--certificatesresolvers.webresolver.acme.email=guest@gmail.com"
-      - "--certificatesresolvers.webresolver.acme.storage=/letsencrypt/acme.json"
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - "letsencrypt:/letsencrypt"
-      - "/var/run/docker.sock:/var/run/docker.sock"
   
   redis:
     container_name: blabbery_redis
@@ -76,8 +57,9 @@ volumes:
   redis-data:
   postgres-data:
   postgres-data-backups:
-  letsencrypt:
 
 networks:
   blabbery_network: 
     driver: bridge
+  proxy:
+    external: true
