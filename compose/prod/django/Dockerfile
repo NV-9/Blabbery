@@ -2,7 +2,7 @@ FROM node:23.10-bookworm-slim as node
 
 WORKDIR /app
 
-COPY front/web/package.json front/web/package-lock.json ./
+COPY /front/web/package.json /front/web/package-lock.json ./
 RUN npm ci && npm cache clean --force
 
 COPY front/web/ .
