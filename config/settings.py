@@ -2,8 +2,9 @@ from pathlib import Path
 from decouple import config, Csv
 
 # File Paths
-BASE_DIR = Path(__file__).resolve().parent.parent
-APPS_DIR = BASE_DIR / 'apps'
+BASE_DIR  = Path(__file__).resolve().parent.parent
+APPS_DIR  = BASE_DIR / 'apps'
+BUILD_DIR = BASE_DIR / 'build'
 
 # Folder Paths
 STATIC_ROOT = config('BLABBERY_STATIC_ROOT', default = BASE_DIR / 'static')
@@ -22,8 +23,27 @@ ASGI_APPLICATION = 'config.asgi.application'
 
 # Security Settings
 SECRET_KEY = config('BLABBERY_SECRET_KEY')
+DOMAIN_NAME = config("BLABBERY_DOMAIN_NAME")
 DEBUG = config('BLABBERY_DEBUG', default = False, cast = bool)
 ALLOWED_HOSTS = config('BLABBERY_ALLOWED_HOSTS', cast = Csv())
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    f'http://{DOMAIN_NAME}',
+    f'https://{DOMAIN_NAME}',
+]
+CSRF_TRUSTED_ORIGINS = [
+    f'http://{DOMAIN_NAME}',
+    f'https://{DOMAIN_NAME}',
+]
+CSRF_COOKIE_HTTPONLY = False 
+CSRF_COOKIE_SECURE = False  # True for HTTPS
+CSRF_COOKIE_SAMESITE = "Lax"
+if DEBUG:
+    CORS_ALLOWED_ORIGINS.append(f'http://{DOMAIN_NAME}:5173')
+    CORS_ALLOWED_ORIGINS.append(f'http://{DOMAIN_NAME}:8000')
+    CSRF_TRUSTED_ORIGINS.append(f'http://{DOMAIN_NAME}:5173')
+    CSRF_TRUSTED_ORIGINS.append(f'http://{DOMAIN_NAME}:8000')
 
 # Misc Settings
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
