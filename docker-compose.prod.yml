@@ -1,0 +1,83 @@
+
+services:
+  web:
+    container_name: blabbery
+    image: ghcr.io/nv-9/blabbery:prod
+    restart: unless-stopped
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - .env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.web.rule=Host(`${BLABBERY_DOMAIN_NAME}`)"
+      - "traefik.http.routers.web.entrypoints=websecure"
+      - "traefik.http.routers.web.tls.certresolver=webresolver"
+      - "com.centurylinklabs.watchtower.enable=true"
+    networks:
+      - blabbery_network
+
+  reverse-proxy:
+    image: traefik:v3.1
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--certificatesresolvers.webresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.webresolver.acme.email=nalabotuviswamedha@gmail.com"
+      - "--certificatesresolvers.webresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "letsencrypt:/letsencrypt"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+  
+  redis:
+    container_name: blabbery_redis
+    image: redis:alpine
+    restart: always
+    volumes:
+      - redis-data:/data
+    networks:
+      - blabbery_network
+  
+  db:
+    container_name: blabbery_db
+    image: postgres:14-alpine
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - postgres-data-backups:/backups
+    networks:
+      - blabbery_network
+  
+  watchtower:
+    image: containrrr/watchtower
+    command:
+      - "--label-enable"
+      - "--interval"
+      - "30"
+      - "--rolling-restart"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+volumes:
+  redis-data:
+  postgres-data:
+  postgres-data-backups:
+  letsencrypt:
+
+networks:
+  blabbery_network: 
+    driver: bridge
