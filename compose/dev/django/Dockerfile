@@ -16,6 +16,8 @@ WORKDIR /app
 COPY /requirements/ /app/
 RUN pip install --upgrade pip && pip install -r dev.txt
 
+COPY ./ /app
+
 COPY ./compose/dev/django/start /start
 RUN sed -i 's/\r$//g' /start
 RUN chmod +x /start
