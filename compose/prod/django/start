@@ -1,0 +1,20 @@
+#!/bin/bash
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+
+python /app/manage.py collectstatic --noinput
+
+python /app/manage.py makemigrations
+python /app/manage.py migrate
+
+
+for fixture in /code/data/*.json; do
+    echo "Loading fixture: $fixture"
+    python /app/manage.py loaddata "$fixture"
+done
+
+echo "Starting Daphne server..."
+daphne config.asgi:application --bind "0.0.0.0" --port 8000
