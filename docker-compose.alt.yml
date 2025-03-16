@@ -1,6 +1,6 @@
 
 services:
-  web:
+  blabbery:
     container_name: blabbery
     image: ghcr.io/nv-9/blabbery:prod
     restart: unless-stopped
@@ -11,9 +11,9 @@ services:
       - .env
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.web.rule=Host(`${BLABBERY_DOMAIN_NAME}`)"
-      - "traefik.http.routers.web.entrypoints=websecure"
-      - "traefik.http.routers.web.tls.certresolver=webresolver"
+      - "traefik.http.routers.blabbery.rule=Host(`${BLABBERY_DOMAIN_NAME}`)"
+      - "traefik.http.routers.blabbery.entrypoints=websecure"
+      - "traefik.http.routers.blabbery.tls.certresolver=webresolver"
       - "com.centurylinklabs.watchtower.enable=true"
     networks:
       - blabbery_network
