@@ -21,7 +21,7 @@ export default defineConfig({
 		origin: "http://127.0.0.1:5173",
 	},
 	build: {
-		outDir: '../../build',
+		outDir: 'build',
 		emptyOutDir: true,
 	},
 })
