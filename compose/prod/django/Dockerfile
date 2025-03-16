@@ -26,7 +26,7 @@ WORKDIR /app
 COPY requirements/ /app/
 RUN pip install --upgrade pip && pip install -r prod.txt
 
-COPY compose/prod/django/start /start
+COPY /compose/prod/django/start /start
 RUN sed -i 's/\r$//g' /start
 RUN chmod +x /start
 
