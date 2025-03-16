@@ -14,9 +14,14 @@ export default defineConfig({
 			clientPort: 5173,
 			protocol: "ws",
 		},
+		allowedHosts: [
+			"localhost",
+			"frontend",
+		],
+		origin: "http://127.0.0.1:5173",
 	},
 	build: {
-		outDir: './build',
+		outDir: '../../build',
 		emptyOutDir: true,
 	},
 })
