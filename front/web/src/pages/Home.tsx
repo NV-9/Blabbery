@@ -7,7 +7,7 @@ const { Title, Paragraph } = Typography;
 const Home: React.FC<AuthProps> = ({ isAuthenticated }) => {
 	return (
 		<div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "80vh" }}>
-			<Card title="Welcome to Blabbery!" style={{ width: 500, textAlign: "center" }}>
+			<Card title="Welcome!" style={{ width: 500, textAlign: "center" }}>
 				<Title level={3}>Chat freely with your friends 🚀</Title>
 				<Paragraph>
 					Blabbery is a real-time chat platform that makes it easy to stay connected.

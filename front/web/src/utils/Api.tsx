@@ -1,6 +1,6 @@
 import Cookies from "universal-cookie";
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL || "/api/";
 
 type HttpMethod = "GET" | "HEAD" | "POST" | "PUT" | "PATCH" | "DELETE";
 type HeadersType = Record<string, string>;
