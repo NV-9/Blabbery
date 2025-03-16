@@ -9,6 +9,9 @@ services:
       dockerfile: ./compose/dev/django/Dockerfile
     env_file:
       - .env
+    depends_on:
+      - db
+      - redis
     volumes:
       - .:/app
     ports:
@@ -34,6 +37,8 @@ services:
       dockerfile: ./compose/dev/node/Dockerfile
     env_file:
       - .env
+    depends_on:
+      - backend
     volumes:
       - ./front/web/:/app
       - /app/node_modules
@@ -41,9 +46,27 @@ services:
       - 5173:5173
     networks:
       - blabbery_network
+  
+  db:
+    container_name: blabbery_db
+    image: postgres:14-alpine
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - postgres-data-backups:/backups
+    networks:
+      - blabbery_network
 
 volumes:
   redis-data:
+  postgres-data:
+  postgres-data-backups:
 
 networks:
   blabbery_network: 
