@@ -10,11 +10,18 @@ python /app/manage.py collectstatic --noinput
 python /app/manage.py makemigrations
 python /app/manage.py migrate
 
-
-for fixture in /app/data/*.json; do
-    echo "Loading fixture: $fixture"
-    python /app/manage.py loaddata "$fixture"
-done
+if [ -d "/app/data" ]; then
+    for fixture in /app/data/*.json; do
+        if [ -f "$fixture" ]; then
+            echo "Loading fixture: $fixture"
+            python /app/manage.py loaddata "$fixture"
+        else
+            echo "No JSON fixtures found in /app/data."
+        fi
+    done
+else
+    echo "Data folder (/app/data) does not exist. Skipping fixture loading."
+fi
 
 echo "Starting Daphne server..."
 daphne config.asgi:application --bind "0.0.0.0" --port 8000
