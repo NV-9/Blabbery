@@ -17,6 +17,7 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
     networks:
       - blabbery_network
+      - proxy
   
   redis:
     container_name: blabbery_redis
