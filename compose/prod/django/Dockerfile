@@ -28,7 +28,7 @@ RUN pip install --upgrade pip && pip install -r prod.txt
 
 COPY --from=node /app/build /app/static/
 
-COPY /compose/prod/django/start /start
+COPY ./start /start
 RUN sed -i 's/\r$//g' /start
 RUN chmod +x /start
 
