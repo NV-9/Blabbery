@@ -1,7 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
 
 from blabbery.models import User, BaseChat, DirectChat, GroupChat, Message
-from blabbery.permissions import IsOwnerOrAdmin
+from blabbery.permissions import IsOwnerOrAdmin, GroupStaffOrAdmin
 from blabbery.serializers import UserSerializer, BaseChatSerializer, DirectChatSerializer, GroupChatSerializer, MessageSerializer
 
 class BaseChatViewSet(ModelViewSet):
@@ -21,9 +21,16 @@ class DirectChatViewSet(ModelViewSet):
 class GroupChatViewSet(ModelViewSet):
     queryset = GroupChat.objects.all()
     serializer_class = GroupChatSerializer
-    permission_classes = [IsOwnerOrAdmin]
+    permission_classes = [GroupStaffOrAdmin]
     lookup_field = 'room_uuid'
-    filterset_fields = ['limit', 'name', 'users', 'online', 'staff', 'rules', 'code']
+    filterset_fields = ['limit', 'name', 'users', 'online', 'staff', 'rules', 'code', 'public']
+
+class PublicGroupChatViewSet(ModelViewSet):
+    queryset = GroupChat.objects.filter(public=True)
+    serializer_class = GroupChatSerializer
+    permission_classes = [GroupStaffOrAdmin]
+    lookup_field = 'room_uuid'
+    filterset_fields = ['limit', 'name', 'users', 'online', 'staff', 'rules', 'code', 'public']
 
 class MessageViewSet(ModelViewSet):
     queryset = Message.objects.all()
