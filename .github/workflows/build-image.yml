@@ -25,4 +25,4 @@ jobs:
           password: ${{secrets.GITHUB_TOKEN}}
 
       - name: Build the Docker image
-        run: docker build compose/prod/django/. -t ghcr.io/nv-9/blabbery:prod --push
+        run: docker build . -f compose/prod/django/Dockerfile -t ghcr.io/nv-9/blabbery:prod --push
