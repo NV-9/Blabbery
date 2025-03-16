@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 
 WORKDIR /app 
 
-COPY ./requirements/ /app/
+COPY requirements /app/
 RUN pip install --upgrade pip && pip install -r prod.txt
 
 COPY --from=node /app/build /app/static/
