@@ -14,7 +14,7 @@ services:
       - "traefik.http.routers.blabbery.rule=Host(`${BLABBERY_DOMAIN_NAME}`)"
       - "traefik.http.routers.blabbery.entrypoints=websecure"
       - "traefik.http.services.blabbery.loadbalancer.server.port=8000"
-      - "traefik.http.routers.blabbery.tls.certresolver=webresolver"
+      - "traefik.http.routers.blabbery.tls.certresolver=myresolver"
       - "traefik.docker.network=proxy"
       - "com.centurylinklabs.watchtower.enable=true"
     networks:
