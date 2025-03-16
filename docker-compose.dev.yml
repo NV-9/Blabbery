@@ -1,36 +1,50 @@
 
 services:
   backend:
-    container_name: blabber_backend
-    image: blabber_backend
+    container_name: blabbery_backend
+    image: blabbery_backend
     restart: always
     build:
       context: .
       dockerfile: ./compose/dev/django/Dockerfile
+    env_file:
+      - .env
     volumes:
       - .:/app
     ports:
       - 8000:8000
+    networks:
+      - blabbery_network
   
   redis:
-    container_name: blabber_redis
+    container_name: blabbery_redis
     image: redis:alpine
     restart: always
     volumes:
       - redis-data:/data
+    networks:
+      - blabbery_network
 
   frontend: 
-    container_name: blabber_frontend
-    image: blabber_frontend
+    container_name: blabbery_frontend
+    image: blabbery_frontend
     restart: always
     build:
       context: .
       dockerfile: ./compose/dev/node/Dockerfile
+    env_file:
+      - .env
     volumes:
       - ./front/web/:/app
       - /app/node_modules
     ports:
       - 5173:5173
+    networks:
+      - blabbery_network
 
 volumes:
   redis-data:
+
+networks:
+  blabbery_network: 
+    driver: bridge
