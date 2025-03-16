@@ -8,9 +8,9 @@ const { Title } = Typography;
 
 const Chat: React.FC = () => {
 	const [onlineUsers] = useState<User[]>([
-		{ id: 1, name: "Alice" },
-		{ id: 2, name: "Bob" },
-		{ id: 3, name: "Charlie" },
+		{ id: 1, username: "Alice" },
+		{ id: 2, username: "Bob" },
+		{ id: 3, username: "Charlie" },
 	]);
 
 	const [messages, setMessages] = useState<Message[]>([
@@ -39,8 +39,8 @@ const Chat: React.FC = () => {
 				renderItem={(user) => (
 				<List.Item>
 					<List.Item.Meta
-					avatar={<Avatar style={{ backgroundColor: "#1890ff" }}>{user.name.charAt(0)}</Avatar>}
-					title={user.name}
+					avatar={<Avatar style={{ backgroundColor: "#1890ff" }}>{user.username.charAt(0)}</Avatar>}
+					title={user.username}
 					/>
 				</List.Item>
 				)}

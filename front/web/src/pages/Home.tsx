@@ -1,9 +1,10 @@
 import React from "react";
 import { Card, Typography, Button } from "antd";
+import { AuthProps } from "../utils/Interfaces";
 
 const { Title, Paragraph } = Typography;
 
-const Home: React.FC = () => {
+const Home: React.FC<AuthProps> = ({ isAuthenticated }) => {
 	return (
 		<div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "80vh" }}>
 			<Card title="Welcome to Blabbery!" style={{ width: 500, textAlign: "center" }}>
@@ -12,8 +13,8 @@ const Home: React.FC = () => {
 					Blabbery is a real-time chat platform that makes it easy to stay connected.
 					Join a room, start a conversation, and enjoy seamless messaging.
 				</Paragraph>
-				<Button type="primary" size="large" href="/authenticate">
-					Get Started
+				<Button type="primary" size="large" href={isAuthenticated ? "/chats" : "/authenticate"}>
+					{isAuthenticated ? "Go to Chats" : "Get Started"}
 				</Button>
 			</Card>
 		</div>

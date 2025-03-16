@@ -7,10 +7,32 @@ export interface Message {
 
 export interface User {
     id: number;
-    name: string;
+    username: string;
 }
 
-export interface BaseProps {
+export interface AuthProps {
     isAuthenticated: boolean;
+}
+
+export interface BaseProps extends AuthProps {
     setAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export interface Room {
+    id: string;
+    name: string;
+    room_uuid: string;
+    rules: string;
+    limit: number;
+}
+
+export interface GroupRoom extends Room {
+    users: User[];
+    online: User[];
+    staff: User[];
+}
+
+export interface DirectRoom extends Room {
+    user: User;
+    online: boolean;
 }

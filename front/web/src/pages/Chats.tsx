@@ -1,173 +1,162 @@
 import React, { useEffect, useState } from "react";
-import { Card, Input, Button, Row, Col, Typography, Space, Modal, Form, InputNumber, Switch, message } from "antd";
-import { PlusOutlined, LockOutlined } from "@ant-design/icons";
+import { Card, Input, Button, Row, Col, Typography, Form, message, Layout, Carousel} from "antd";
+import { UserOutlined, MessageOutlined } from "@ant-design/icons";
 import { ApiRouter } from "../utils/Api";
+import { GroupRoom, DirectRoom } from "../utils/Interfaces";
 
 const { Title, Text } = Typography;
-
-interface Room {
-    id: string;
-    name: string;
-    room_uuid: string;
-    description: string;
-}
+const { Content } = Layout;
 
 const ChatList: React.FC = () => {
-    const [publicRooms, setPublicRooms] = useState<Room[]>([]);
-    const [inviteCode, setInviteCode] = useState("");
-    const [modalVisible, setModalVisible] = useState(false);
-    const [isPrivateRoom, setIsPrivateRoom] = useState(false);
-    const [form] = Form.useForm();
+    const [publicRooms, setPublicRooms] = useState<GroupRoom[]>([]);
+    const [joinedPublicRooms, setJoinedPublicRooms] = useState<GroupRoom[]>([]);
+    const [joinedDirectRooms, setjoinedDirectRooms] = useState<DirectRoom[]>([]);
 
+    const [directChatForm] = Form.useForm();
 
-    useEffect(() => {
-        const fetchPublicRooms = async () => {
-            try {
-                const response = await ApiRouter.get("public-group-chat/");
-                if (response) {
-                    setPublicRooms(response);
-                } else {
-                    message.error("Failed to fetch public rooms.");
-                }
-            } catch (error) {
-                message.error("Error fetching public rooms.");
-                console.error("Fetch Public Rooms Error:", error);
-            }
-        };
-
-        fetchPublicRooms();
+    useEffect(() => { 
+        ApiRouter.get("public-group-chat/")
+        .then((response) => {
+            if (response) setPublicRooms(response);
+            else console.error("Failed to fetch public rooms.");
+        })
+        .catch((error) => {
+            console.error("Fetch Public Rooms Error:", error);
+        });
+        ApiRouter.get("public-group-chat/")
+        .then((response) => {
+            if (response) setJoinedPublicRooms(response);
+            else console.error("Failed to fetch joined public rooms.");
+        })
+        .catch((error) => {
+            console.error("Fetch Joined Public Rooms Error:", error);
+        });
+        ApiRouter.get("direct-chat/")
+        .then((response) => {
+            if (response) setjoinedDirectRooms(response);
+            else console.error("Failed to fetch direct rooms.");
+        })
+        .catch((error) => {
+            console.error("Fetch Direct Rooms Error:", error);
+        });
     }, []);
 
-    const handleJoinRoom = () => {
-        if (inviteCode.trim()) {
-            console.log("Joining room with invite code:", inviteCode);
-        }
-    };
-
-    const handleOpenModal = (isPrivate: boolean) => {
-        setIsPrivateRoom(isPrivate);
-        setModalVisible(true);
-    };
-
-    const handleCreateRoom = async (values: { name: string; limit: number; rules?: string; code?: string }) => {
+    const handleStartDirectChat = async (values: { username: string }) => {
         try {
-            const data = {
-                ...values,
-                public: !isPrivateRoom, 
-            };
-            const response = await ApiRouter.post("create-group/", data);
+            const response = await ApiRouter.post("start-direct-chat/", values);
 
             if (response.success) {
-                message.success(`Room "${values.name}" created successfully!`);
-                setModalVisible(false);
-                form.resetFields();
+                message.success(`Chat started with ${values.username}`);
+                directChatForm.resetFields();
             } else {
-                message.error("Failed to create room. Please try again.");
+                message.error("Failed to start direct chat. User may not exist.");
             }
         } catch (error) {
-            message.error("Error creating room.");
-            console.error("Create Room Error:", error);
+            message.error("Error starting direct chat.");
+            console.error("Direct Chat Error:", error);
         }
     };
 
     return (
-        <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
-            <Title level={3} style={{ textAlign: "center", marginBottom: "20px" }}>
-                Public Chat Rooms
-            </Title>
-
-            <Row gutter={[16, 16]}>
-                {publicRooms.map((room) => (
-                    <Col xs={24} sm={12} md={8} key={room.id}>
-                        <Card
-                            title={room.name}
-                            bordered={false}
-                            hoverable
-                            onClick={() => console.log("Joining room:", room.name)}
-                        >
-                            <Text>{room.description}</Text>
+        <Layout style={{ minHeight: "100vh", padding: "20px" }}>
+            <Content>
+                <Row gutter={[24, 24]}>
+                    <Col xs={24} md={12}>
+                        <Title level={3} style={{ textAlign: "center" }}>Direct Chats</Title>
+                        <Carousel autoplay>
+                            {joinedDirectRooms.length > 0 ? (
+                                joinedDirectRooms.map((chat) => (
+                                    <Card
+                                        key={chat.id}
+                                        title={chat.user.username}
+                                        hoverable
+                                        style={{ textAlign: "center" }}
+                                        actions={[
+                                            <Button
+                                                type="primary"
+                                                icon={<MessageOutlined />}
+                                                onClick={() => console.log("Opening chat with:", chat.user.username)}
+                                            >
+                                                Chat
+                                            </Button>
+                                        ]}
+                                    >
+                                    
+                                    </Card>
+                                ))
+                            ) : (
+                                <Card style={{ textAlign: "center" }}>No direct chats available</Card>
+                            )}
+                        </Carousel>
+                    </Col>
+                    <Col xs={24} md={12}>
+                        <Title level={3} style={{ textAlign: "center" }}>Group Chats</Title>
+                        <Carousel autoplay>
+                            {joinedPublicRooms.length > 0 ? (
+                                joinedPublicRooms.map((room) => (
+                                    <Card
+                                        key={room.id}
+                                        title={room.name}
+                                        hoverable
+                                        style={{ textAlign: "center" }}
+                                        actions={[
+                                            <Button
+                                                type="primary"
+                                                onClick={() => console.log("Joining group:", room.name)}
+                                            >
+                                                Resume
+                                            </Button>
+                                        ]}
+                                    >
+                                        <Text>
+                                            {room.rules.length > 100 ? `${room.rules.substring(0, 100)}...` : room.rules}
+                                        </Text>
+                                    </Card>
+                                ))
+                            ) : (
+                                <Card style={{ textAlign: "center" }}>No group chats available</Card>
+                            )}
+                        </Carousel>
+                    </Col>
+                    <Col xs={24} md={12}>
+                        <Card>
+                            <Title level={4}>Start a Direct Chat</Title>
+                            <Form form={directChatForm} layout="vertical" onFinish={handleStartDirectChat}>
+                                <Form.Item
+                                    label="Enter Username"
+                                    name="username"
+                                    rules={[{ required: true, message: "Please enter a username!" }]}
+                                >
+                                    <Input placeholder="Enter username" prefix={<UserOutlined />} />
+                                </Form.Item>
+                                <Form.Item>
+                                    <Button type="primary" htmlType="submit" block>
+                                        Start Chat
+                                    </Button>
+                                </Form.Item>
+                            </Form>
                         </Card>
                     </Col>
-                ))}
-            </Row>
-            <div style={{ marginTop: "30px", textAlign: "center" }}>
-                <Title level={4}>Join a Room with an Invite Code</Title>
-                <Space direction="horizontal">
-                    <Input
-                        placeholder="Enter invite code"
-                        value={inviteCode}
-                        onChange={(e) => setInviteCode(e.target.value)}
-                        style={{ width: 300 }}
-                    />
-                    <Button type="primary" onClick={handleJoinRoom}>
-                        Join
-                    </Button>
-                </Space>
-            </div>
-            <div style={{ marginTop: "40px", textAlign: "center" }}>
-                <Title level={4}>Create a New Room</Title>
-                <Space>
-                    <Button
-                        type="primary"
-                        icon={<PlusOutlined />}
-                        onClick={() => handleOpenModal(false)}
-                    >
-                        Create Public Room
-                    </Button>
-                    <Button
-                        type="default"
-                        icon={<LockOutlined />}
-                        onClick={() => handleOpenModal(true)}
-                    >
-                        Create Private Room
-                    </Button>
-                </Space>
-            </div>
-            <Modal
-                title={isPrivateRoom ? "Create Private Room" : "Create Public Room"}
-                open={modalVisible}
-                onCancel={() => setModalVisible(false)}
-                footer={null}
-            >
-                <Form form={form} layout="vertical" onFinish={handleCreateRoom}>
-                    <Form.Item
-                        label="Room Name"
-                        name="name"
-                        rules={[{ required: true, message: "Please enter a room name!" }]}
-                    >
-                        <Input placeholder="Enter room name" />
-                    </Form.Item>
-                    <Form.Item
-                        label="Room Limit"
-                        name="limit"
-                        initialValue={2}
-                        rules={[{ required: true, message: "Please enter a room limit!" }]}
-                    >
-                        <InputNumber min={2} max={100} style={{ width: "100%" }} />
-                    </Form.Item>
-                    <Form.Item label="Rules (Optional)" name="rules">
-                        <Input.TextArea placeholder="Enter room rules (optional)" />
-                    </Form.Item>
-                    {isPrivateRoom && (
-                        <Form.Item
-                            label="Invite Code"
-                            name="code"
-                            rules={[{ required: true, message: "Invite code is required for private rooms!" }]}
-                        >
-                            <Input placeholder="Enter invite code for private room" />
-                        </Form.Item>
-                    )}
-                    <Form.Item name="public" hidden initialValue={!isPrivateRoom}>
-                        <Switch defaultChecked={!isPrivateRoom} />
-                    </Form.Item>
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit" block>
-                            Create Room
-                        </Button>
-                    </Form.Item>
-                </Form>
-            </Modal>
-        </div>
+                    <Col xs={24} md={12}>
+                        <Title level={3} style={{ textAlign: "center" }}>Public Rooms</Title>
+                        <Carousel autoplay dots={false}>
+                            {publicRooms.length > 0 ? (
+                                publicRooms.map((room) => (
+                                    <Card key={room.id} title={room.name} hoverable>
+                                        <Text>{room.rules.substring(0, 100)}...</Text>
+                                        <Button type="primary" block style={{ marginTop: "10px" }}>
+                                            Join Room
+                                        </Button>
+                                    </Card>
+                                ))
+                            ) : (
+                                <Card style={{ textAlign: "center" }}>No public rooms available</Card>
+                            )}
+                        </Carousel>
+                    </Col>
+                </Row>
+            </Content>
+        </Layout>
     );
 };
 

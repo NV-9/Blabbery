@@ -3,10 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { Card, Form, Input, Button, Typography, notification } from "antd";
 import { ApiRouter } from "../utils/Api";
 import { BaseProps } from "../utils/Interfaces";
+import { NotificationType } from "../utils/Types";
 
 const { Title, Paragraph } = Typography;
-
-type NotificationType = 'success' | 'info' | 'warning' | 'error';
 
 const Authenticate: React.FC<BaseProps> = ({ isAuthenticated, setAuthenticated}) => {
 	const navigate = useNavigate();
@@ -15,7 +14,7 @@ const Authenticate: React.FC<BaseProps> = ({ isAuthenticated, setAuthenticated})
 
 	useEffect(() => {
 		if (isAuthenticated) {
-			navigate("/chat");
+			navigate("/chats");
 		}
 	}, [isAuthenticated, navigate]);
 
@@ -37,7 +36,7 @@ const Authenticate: React.FC<BaseProps> = ({ isAuthenticated, setAuthenticated})
 							? "Registration successful! Welcome to Blabbery."
 							: "Login successful! Redirecting...", "success");
 						setAuthenticated(true);
-						setTimeout(() => navigate("/chat"), 1500);
+						setTimeout(() => navigate("/chats"), 1500);
 					} else {
 						showNotification("Login Failed ❌", response?.message || "Invalid credentials. Please try again.", "error");
 					}

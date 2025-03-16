@@ -11,6 +11,7 @@ const Chats = lazy(() => import("./pages/Chats"));
 const Chat = lazy(() => import("./pages/Chat"));
 
 const { Header, Content, Footer } = Layout;
+const authorName = import.meta.env.VITE_AUTHOR;
 
 const App: React.FC = () => {
     const navigate = useNavigate();
@@ -94,7 +95,7 @@ const App: React.FC = () => {
             </Header>
             <Content style={{ padding: "20px" }}>
                 <Routes>
-                    <Route path="/" element={<Home />} />
+                    <Route path="/" element={<Home isAuthenticated={isAuthenticated} />} />
                     <Route path="/authenticate" element={<Authenticate isAuthenticated={isAuthenticated} setAuthenticated={setIsAuthenticated} />} />
 					<Route path="/logout" element={<Logout isAuthenticated={isAuthenticated} setAuthenticated={setIsAuthenticated} />} />
 					<Route path="/chats" element={<Chats />} />
@@ -102,7 +103,7 @@ const App: React.FC = () => {
                 </Routes>
             </Content>
             <Footer style={{ textAlign: "center" }}>
-                Blabbery ©{new Date().getFullYear()} Created by User
+                Blabbery ©{new Date().getFullYear()} Created by {authorName}
             </Footer>
         </Layout>
     );

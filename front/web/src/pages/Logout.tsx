@@ -9,8 +9,7 @@ const Logout: React.FC<BaseProps> = ({isAuthenticated, setAuthenticated}) => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (!isAuthenticated) 
-            navigate("/");
+        if (!isAuthenticated) navigate("/");
         ApiRouter.get("logout/")
             .then((response) => {
                 if (response && response.success) {
