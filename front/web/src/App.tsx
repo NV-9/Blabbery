@@ -9,6 +9,7 @@ const Authenticate = lazy(() => import("./pages/Authenticate"));
 const Logout = lazy(() => import("./pages/Logout"));
 const Chats = lazy(() => import("./pages/Chats"));
 const Chat = lazy(() => import("./pages/Chat"));
+const PageNotFound = lazy(() => import("./pages/404"));
 
 const { Header, Content, Footer } = Layout;
 const authorName = import.meta.env.VITE_AUTHOR;
@@ -100,6 +101,7 @@ const App: React.FC = () => {
 					<Route path="/logout" element={<Logout isAuthenticated={isAuthenticated} setAuthenticated={setIsAuthenticated} />} />
 					<Route path="/chats" element={<Chats />} />
                     <Route path="/chat" element={<Chat />} />
+                    <Route path="*" element={<PageNotFound />} />
                 </Routes>
             </Content>
             <Footer style={{ textAlign: "center" }}>
