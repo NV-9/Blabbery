@@ -1,0 +1,78 @@
+[
+{
+    "model": "blabbery.user",
+    "pk": 1,
+    "fields": {
+        "password": "pbkdf2_sha256$870000$EpK57Cmjgy5kBjYInpRlf8$LIZq3xauXYr68Uy4c/o7mKd9v+kgCJe6g1fJAVlF9vM=",
+        "last_login": "2025-03-16T22:31:19.613Z",
+        "is_superuser": true,
+        "created_at": "2000-01-01T00:00:00Z",
+        "updated_at": "2000-01-01T00:00:00Z",
+        "user_uuid": "9813ed5b-ad97-43c8-a0cf-b0b12d15e730",
+        "email_address": "admin@example.com",
+        "username": "admin",
+        "date_of_birth": "2000-01-01",
+        "is_active": true,
+        "is_staff": true,
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "blabbery.user",
+    "pk": 2,
+    "fields": {
+        "password": "pbkdf2_sha256$870000$eDjxyFavQzynF7nXIzq5Nd$v/oa70pNXm1cG35dKh5qg8WA0Ld0BnNYXI0c5zFqK2k=",
+        "last_login": null,
+        "is_superuser": false,
+        "created_at": "2000-01-01T00:00:00Z",
+        "updated_at": "2000-01-01T00:00:00Z",
+        "user_uuid": "95c94dad-1cb2-4aea-beab-9c5f5992f084",
+        "email_address": "tester1@example.com",
+        "username": "tester1",
+        "date_of_birth": "2000-01-01",
+        "is_active": true,
+        "is_staff": false,
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "blabbery.user",
+    "pk": 3,
+    "fields": {
+        "password": "pbkdf2_sha256$870000$hxYpz83WmsGF4v4K5MryEq$JuV2Exb0p8jb+mzaMqAZ7T4HkYGYZQEjUa7mthvELyE=",
+        "last_login": null,
+        "is_superuser": false,
+        "created_at": "2000-01-01T00:00:00Z",
+        "updated_at": "2000-01-01T00:00:00Z",
+        "user_uuid": "f996d5a0-ebc5-4912-9198-e88a4f5a85ff",
+        "email_address": "tester2@example.com",
+        "username": "tester2",
+        "date_of_birth": "2000-01-01",
+        "is_active": true,
+        "is_staff": false,
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "blabbery.user",
+    "pk": 4,
+    "fields": {
+        "password": "pbkdf2_sha256$870000$LxZ6fiwbNJPAV7a5ViA8nH$5pJ3DXEUQPQKVxQcyKyke2CUPQXiAG9F6ianuhh6bsA=",
+        "last_login": null,
+        "is_superuser": false,
+        "created_at": "2000-01-01T00:00:00Z",
+        "updated_at": "2000-01-01T00:00:00Z",
+        "user_uuid": "93f66ef9-9a3a-4863-9e91-0b63478ed351",
+        "email_address": "tester3@example.com",
+        "username": "tester3",
+        "date_of_birth": "2000-01-01",
+        "is_active": true,
+        "is_staff": true,
+        "groups": [],
+        "user_permissions": []
+    }
+}
+]
