@@ -28,7 +28,7 @@ class GroupChatSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GroupChat
-        fields = ['id', 'room_uuid', 'limit', 'name', 'users', 'online', 'staff', 'rules', 'code']
+        fields = ['id', 'room_uuid', 'limit', 'name', 'users', 'online', 'staff', 'rules', 'code', 'public']
         read_only_fields = ['id', 'room_uuid']
 
 class MessageSerializer(serializers.ModelSerializer):

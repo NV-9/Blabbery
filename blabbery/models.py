@@ -50,7 +50,7 @@ class BaseChat(Model):
     """
     id        = AutoField(primary_key = True)
     room_uuid = UUIDField(verbose_name = _('Room UUID'), default = uuid4, editable = False)
-    limit     = IntegerField(verbose_name = _('Limit'), default = 2)
+    limit     = IntegerField(verbose_name = _('Limit'), default = 2, blank = True)
 
     class Meta:
         verbose_name = _('Base Room')
@@ -85,6 +85,7 @@ class GroupChat(BaseChat):
     staff  = ManyToManyField(User, verbose_name = _('Staff'), related_name = 'group_chat_staff', blank = True)
     rules  = TextField(verbose_name = _('Rules'), blank = True)
     code   = CharField(verbose_name = _('Invite Code'), max_length = 255, unique = True, blank = True)
+    public = BooleanField(verbose_name = _('Public'), default = False)
 
     class Meta:
         verbose_name = _('Group Chat')
