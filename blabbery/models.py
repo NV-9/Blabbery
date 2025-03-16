@@ -84,7 +84,7 @@ class GroupChat(BaseChat):
     online = ManyToManyField(User, verbose_name = _('Online'), related_name = 'group_chat_online', blank = True)
     staff  = ManyToManyField(User, verbose_name = _('Staff'), related_name = 'group_chat_staff', blank = True)
     rules  = TextField(verbose_name = _('Rules'), blank = True)
-    code   = CharField(verbose_name = _('Invite Code'), max_length = 255, unique = True, blank = True)
+    code   = CharField(verbose_name = _('Invite Code'), max_length = 255, default = '', blank = True)
     public = BooleanField(verbose_name = _('Public'), default = False)
 
     class Meta:
