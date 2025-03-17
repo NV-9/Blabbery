@@ -20,13 +20,13 @@ export interface BaseProps extends AuthProps {
 
 export interface Room {
     id: string;
-    name: string;
     room_uuid: string;
-    rules: string;
     limit: number;
+    name: string;
 }
 
 export interface GroupRoom extends Room {
+    rules: string;
     users: User[];
     online: User[];
     staff: User[];
