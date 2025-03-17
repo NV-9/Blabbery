@@ -71,7 +71,7 @@ class DirectChatAdmin(admin.ModelAdmin):
 
     list_display = ['id', 'room_uuid', 'limit']
     list_filter = ['limit']
-    ordering = ['id', 'room_uuid', 'limit']
+    ordering = ['id', 'room_uuid']
     filter_horizontal = []
 
     fieldsets = (
@@ -83,8 +83,8 @@ class DirectChatAdmin(admin.ModelAdmin):
             }
         ),
         (
-            'Details', {
-                'fields': (('limit',),),
+            'Group', {
+                'fields': ('users', 'online'),
             }
         ),
     )
