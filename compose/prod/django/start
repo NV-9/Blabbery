@@ -10,17 +10,17 @@ python /app/manage.py collectstatic --noinput
 python /app/manage.py makemigrations
 python /app/manage.py migrate
 
-if [ -d "/app/data" ]; then
-    for fixture in /app/data/*.json; do
+if [ -d "/app/data/prod" ]; then
+    for fixture in /app/data/prod/*.json; do
         if [ -f "$fixture" ]; then
             echo "Loading fixture: $fixture"
             python /app/manage.py loaddata "$fixture"
         else
-            echo "No JSON fixtures found in /app/data."
+            echo "No JSON fixtures found in /app/data/prod."
         fi
     done
 else
-    echo "Data folder (/app/data) does not exist. Skipping fixture loading."
+    echo "Data folder (/app/data/prod) does not exist. Skipping fixture loading."
 fi
 
 echo "Starting Daphne server..."
