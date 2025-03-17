@@ -6,7 +6,10 @@ COPY /front/web/package.json /front/web/package-lock.json ./
 RUN npm ci && npm cache clean --force
 
 COPY ./front/web/ .
-COPY ./.env .env
+
+ARG VITE_AUTHOR
+ENV VITE_AUTHOR=${VITE_AUTHOR}
+
 RUN npm run build
 
 FROM docker.io/python:3.13.2-slim-bookworm as python
