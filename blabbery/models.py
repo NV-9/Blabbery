@@ -57,7 +57,7 @@ class BaseChat(Model):
         verbose_name_plural = _('Base Rooms')
 
     def __str__(self):
-        return self.id
+        return f"BaseChat-{self.id}"
     
 class DirectChat(BaseChat):
     """
@@ -72,7 +72,7 @@ class DirectChat(BaseChat):
         verbose_name_plural = _('Direct Chats')
 
     def __str__(self):
-        return self.id
+        return f"DirectChat-{self.id}"
 
 class GroupChat(BaseChat):
     """
