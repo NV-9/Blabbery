@@ -10,5 +10,20 @@ python /app/manage.py collectstatic --noinput
 python /app/manage.py makemigrations
 python /app/manage.py migrate
 
+
+if [ -d "/app/data/dev" ]; then
+    for fixture in /app/data/dev/*.json; do
+        if [ -f "$fixture" ]; then
+            echo "Loading fixture: $fixture"
+            python /app/manage.py loaddata "$fixture"
+        else
+            echo "No JSON fixtures found in /app/data/dev."
+        fi
+    done
+else
+    echo "Data folder (/app/data/dev) does not exist. Skipping fixture loading."
+fi
+
+
 echo "Starting development server..."
 python /app/manage.py runserver 0.0.0.0:8000
