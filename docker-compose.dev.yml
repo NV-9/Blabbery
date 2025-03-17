@@ -14,6 +14,7 @@ services:
       - redis
     volumes:
       - .:/app
+      - ./build:/app/build
     ports:
       - 8000:8000
     networks:
@@ -35,12 +36,16 @@ services:
     build:
       context: .
       dockerfile: ./compose/dev/node/Dockerfile
+    stdin_open: true
+    environment:
+      - CHOKIDAR_USEPOLLING=true
     env_file:
       - .env
     depends_on:
       - backend
     volumes:
-      - ./front/web/:/app
+      - ./front/web/:/app:delegated
+      - ./build:/app/build
       - /app/node_modules
     ports:
       - 5173:5173
