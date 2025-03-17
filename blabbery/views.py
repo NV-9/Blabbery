@@ -8,6 +8,7 @@ from django.views.static import serve as static_serve
 from pathlib import Path
 import posixpath
 from blabbery.helpers import parse_request_body
+from blabbery.models import User
 from blabbery.serializers import UserSerializer
 
 
@@ -23,17 +24,53 @@ def serve_react(request, path, document_root=None):
 @require_POST
 def login_view(request):
     data = parse_request_body(request)
+
     if not data.status:
         return JsonResponse({'detail': 'Invalid JSON provided.', 'success': False}, status = 401)
-    username = data.detail.get('username')
-    password = data.detail.get('password')
+    
+    username = data.detail.get('username', None)
+    password = data.detail.get('password', None)
+
     if username is None or password is None:
         return JsonResponse({'detail': 'Please provide username and password.', 'success': False})
+    
     user = authenticate(username = username, password = password)
+
     if user is None:
         return JsonResponse({'detail': 'Invalid credentials.', 'success': False})
+    
     login(request, user)
     return JsonResponse({'detail': 'Successfully logged in.', 'success': True})
+
+@require_POST
+def signup_view(request):
+    data = parse_request_body(request)
+    
+    if not data.status:
+        return JsonResponse({'detail': 'Invalid JSON provided.', 'success': False}, status=400)
+
+    username = data.detail.get('username')
+    email_address = data.detail.get('email_address')
+    date_of_birth = data.detail.get('date_of_birth')
+    password = data.detail.get('password')
+    confirm_password = data.detail.get('confirm_password')
+
+    if not all([username, email_address, date_of_birth, password, confirm_password]):
+        return JsonResponse({'detail': 'All fields are required.', 'success': False}, status=400)
+
+    if password != confirm_password:
+        return JsonResponse({'detail': 'Passwords do not match.', 'success': False}, status=400)
+
+    if User.objects.filter(username=username).exists():
+        return JsonResponse({'detail': 'Username already taken.', 'success': False}, status=400)
+
+    if User.objects.filter(email_address=email_address).exists():
+        return JsonResponse({'detail': 'Email already registered.', 'success': False}, status=400)
+
+    user = User.objects.create_user(username=username, email_address=email_address, date_of_birth=date_of_birth, password=password)
+    login(request, user)
+
+    return JsonResponse({'detail': 'Successfully signed up.', 'success': True}, status=201)
 
 def logout_view(request):
     if not request.user.is_authenticated:
