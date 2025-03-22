@@ -29,14 +29,14 @@ class DirectChatViewSet(ModelViewSet):
 
     @action(detail = False, methods = ['post'], url_name='join', url_path='join')
     def join(self, request):
-        if username:=request.data.get('username', None) is None:
+        if (username:=request.data.get('username', None)) is None:
             return Response({'detail': 'Please provide a username to start a direct chat.', 'success': False}, status = 400)
-        if user:= User.objects.filter(username=username).first() is None:
+        if (user:= User.objects.filter(username=username).first()) is None:
             return Response({'detail': 'User not found.', 'success': False}, status=404)
         if user == request.user:
             return Response({'detail': 'You cannot start a chat with yourself.', 'success': False}, status=400)
         users_set = {user, request.user}
-        possible_chats = DirectChat.objects.filter(users__in=users_set).distinct()
+        possible_chats = DirectChat.objects.filter(users__in=list(users_set)).distinct()
         for chat in possible_chats:
             chat_users = set(chat.users.all())  
             if chat_users == users_set: 
@@ -60,42 +60,36 @@ class GroupChatViewSet(ModelViewSet):
     def get_queryset(self):
         return super().get_queryset().filter(users = self.request.user)
 
-    @action(detail = False, methods = ['post'], url_name='join_private', url_path='join-private')
+    @action(detail = False, methods = ['post'], url_name='join_private', url_path='join-private', permission_classes = [IsAuthenticated])
     def join_private(self, request):
-        if code:= request.data.get('invite_code', None) is None:
+        if (code:= request.data.get('invite_code', None)) is None:
             return Response({'detail': 'Please provide a code to join a public group chat.', 'success': False}, status = 400)
-        group_chat = GroupChat.objects.filter(code = code).first()
-        if group_chat is None:
+        if (group_chat:=GroupChat.objects.filter(code = code).first()) is None:
             return Response({'detail': 'Invalid code provided.', 'success': False}, status = 400)
         group_chat.users.add(request.user)
         group_chat.save()
-        return Response({'detail': 'Successfully joined the group chat.', 'success': True})
+        data = GroupChatSerializer(group_chat).data
+        data.update({'success': True})
+        return Response(data, status = 200)
     
     @action(detail = True, methods = ['post'], url_name='join_public', url_path='join-public', permission_classes=[IsAuthenticated])
     def join_public(self, request, room_uuid):
-        group_chat = GroupChat.objects.filter(room_uuid = room_uuid).first()
-
-        if group_chat is None:
+        if (group_chat:=GroupChat.objects.filter(room_uuid = room_uuid).first()) is None:
             return Response({'detail': 'Group chat not found.', 'success': False}, status = 404)
-
         if not group_chat.public:
             return Response({'detail': 'Group chat is not public.', 'success': False}, status = 400)
-
         group_chat.users.add(request.user)
         group_chat.save()
-
-        return Response({'detail': 'Successfully joined the group chat.', 'success': True})
+        data = GroupChatSerializer(group_chat).data
+        data.update({'success': True})
+        return Response(data, status = 200)
 
     @action(detail = True, methods = ['post'], url_name='leave', url_path='leave')
     def leave(self, request, room_uuid):
-        group_chat = GroupChat.objects.filter(room_uuid = room_uuid).first()
-
-        if group_chat is None:
+        if (group_chat:=GroupChat.objects.filter(room_uuid = room_uuid).first()) is None:
             return Response({'detail': 'Group chat not found.', 'success': False}, status = 404)
-
         group_chat.users.remove(request.user)
         group_chat.save()
-
         return Response({'detail': 'Successfully left the group chat.', 'success': True})
     
     @action(detail=False, methods=['get'], url_name='public', url_path='public', permission_classes=[AllowAny])
