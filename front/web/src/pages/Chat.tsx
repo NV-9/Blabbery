@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Layout, Card, Input, List, Avatar, Typography, Button, Switch, notification } from "antd";
+import { Layout, Card, Input, List, Avatar, Typography, Button, notification, Row, Col } from "antd";
+import { ArrowLeftOutlined } from "@ant-design/icons";
 import { User, Room } from "../utils/Interfaces";
 import { NotificationType } from "../utils/Types";
 import { ApiRouter } from "../utils/Api";
@@ -33,9 +34,9 @@ const ChatList: React.FC<{
     );
 };
 
-const OnlineUsers: React.FC<{ users: User[] }> = ({ users }) => (
+const UserList: React.FC<{ users: User[]; title: string }> = ({ users, title }) => (
     <>
-        <Title level={4}>Online Users</Title>
+        <Title level={4}>{title}</Title>
         <List itemLayout="horizontal" dataSource={users} renderItem={(user: User) => (
             <List.Item>
                 <List.Item.Meta avatar={<Avatar style={{ backgroundColor: "#1890ff" }}>{user.username.charAt(0)}</Avatar>} title={user.username} />
@@ -57,7 +58,6 @@ const Chat: React.FC = () => {
     const [onlineUsers, setOnlineUsers] = useState<User[]>([]);
     const [messages, setMessages] = useState<{ sender: string, content: string }[]>([]);
     const [newMessage, setNewMessage] = useState("");
-    const [autoScroll, setAutoScroll] = useState(true);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const socketRef = useRef<WebSocket | null>(null);
 
@@ -65,14 +65,14 @@ const Chat: React.FC = () => {
         api[type]({ message: title, description: message, placement: "topRight", duration: 3 });
 
     const sendNewMessage = () => {
-		if (!newMessage || !currentUserData || !socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) return;
-		const data = { type: "message", content: newMessage };
-		socketRef.current.send(JSON.stringify(data));
-		setNewMessage("");
-	};
+        if (!newMessage || !currentUserData || !socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) return;
+        const data = { type: "message", content: newMessage };
+        socketRef.current.send(JSON.stringify(data));
+        setNewMessage("");
+    };
 
     useEffect(() => {
-        if (autoScroll && messagesEndRef.current) {
+        if (messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
         }
     }, [messages]);
@@ -89,12 +89,12 @@ const Chat: React.FC = () => {
                             isGroup: type === 'group',
                             name: type === 'group' ? response.name : response.users.find((u: User) => u.user_uuid !== userResponse.user_uuid).username
                         });
-						setMessages([]);
-						ApiRouter.get(`message/?chat__room_uuid=${chat_uuid}`).then((roomMessages) => {
-							if (roomMessages) {
-								setMessages(roomMessages.map((msg: any) => ({ sender: msg.user.username, content: msg.content })));
-							}
-						}).catch(() => showNotification("Error", "Failed to fetch chat messages.", "error"));
+                        setMessages([]);
+                        ApiRouter.get(`message/?chat__room_uuid=${chat_uuid}`).then((roomMessages) => {
+                            if (roomMessages) {
+                                setMessages(roomMessages.map((msg: any) => ({ sender: msg.user.username, content: msg.content })));
+                            }
+                        }).catch(() => showNotification("Error", "Failed to fetch chat messages.", "error"));
                     }
                 }).catch(() => showNotification("Error", "Failed to fetch chat room data.", "error"));
             }
@@ -124,17 +124,20 @@ const Chat: React.FC = () => {
         const url = currentRoomData.isGroup ? WS_ENDPOINTS.GROUP_CHAT(currentRoomData.room_uuid) : WS_ENDPOINTS.DIRECT_CHAT(currentRoomData.room_uuid);
         const ws = new WebSocket(url);
         ws.onmessage = (event) => {
-			const data = JSON.parse(event.data);
-			if (data.type === "online") setOnlineUsers(data.users);
-			else if (data.type === "message" && data.user && data.content) setMessages((prev) => [...prev, { sender: data.user.username, content: data.content }]);
-			else if (data.type === "unauthorised") navigate("/authenticate/");
-		};
+            const data = JSON.parse(event.data);
+            if (data.type === "online") setOnlineUsers(data.users);
+            else if (data.type === "message" && data.user && data.content) {
+                setMessages((prev) => [...prev, { sender: data.user.username, content: data.content }]);
+            } else if (data.type === "unauthorised") navigate("/authenticate/");
+        };
         socketRef.current = ws;
         return () => {
             ws.close();
             socketRef.current = null;
         };
     }, [currentRoomData]);
+
+    const offlineUsers = currentRoomData?.users?.filter((user: User) => !onlineUsers.some((u) => u.user_uuid === user.user_uuid)) || [];
 
     return (
         <Layout>
@@ -145,7 +148,13 @@ const Chat: React.FC = () => {
             <Layout>
                 {chat_uuid && type ? (
                     <Content style={{ padding: "20px", display: "flex", flexDirection: "column", height: "80vh" }}>
-                        <Title level={4}>{currentRoomData?.name}</Title>
+                        <Row justify="space-between" align="middle" style={{ marginBottom: "10px" }}>
+                            <Button icon={<ArrowLeftOutlined />} onClick={() => navigate("/chats")} />
+                            <Col flex="auto" style={{ textAlign: "center" }}>
+                                <Title level={4} style={{ margin: 0 }}>{currentRoomData?.name}</Title>
+                            </Col>
+                            <div style={{ width: 48 }}></div>
+                        </Row>
                         <Card style={{ flex: 1, overflow: "auto", display: "flex", flexDirection: "column" }}>
                             {messages.map((msg, index) => (
                                 <div key={index} style={{ display: "flex", justifyContent: msg.sender === currentUserData?.username ? "flex-end" : "flex-start", padding: "5px 10px" }}>
@@ -158,7 +167,6 @@ const Chat: React.FC = () => {
                             <div ref={messagesEndRef} />
                         </Card>
                         <div style={{ marginTop: "10px", display: "flex", alignItems: "center", gap: "10px" }}>
-                            <Switch checked={autoScroll} onChange={() => setAutoScroll(!autoScroll)} checkedChildren="Auto-Scroll On" unCheckedChildren="Scroll" />
                             <Input placeholder="Type a message..." value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onPressEnter={sendNewMessage} />
                             <Button type="primary" onClick={sendNewMessage}>Send</Button>
                         </div>
@@ -183,7 +191,10 @@ const Chat: React.FC = () => {
             </Layout>
             {chat_uuid && type && (
                 <Sider width={250} theme="light" style={{ padding: "20px", borderLeft: "1px solid #ddd" }}>
-                    <OnlineUsers users={onlineUsers} />
+                    <UserList title="Online Users" users={onlineUsers} />
+                    <div style={{ marginTop: "20px" }}>
+                        <UserList title="Offline Users" users={offlineUsers} />
+                    </div>
                 </Sider>
             )}
         </Layout>
