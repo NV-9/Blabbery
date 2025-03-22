@@ -71,6 +71,46 @@ const Chat: React.FC = () => {
         setNewMessage("");
     };
 
+	const onBackClicked = () => {
+		if (socketRef.current) {
+			socketRef.current.close();
+			socketRef.current = null;
+		};
+		setCurrentRoomData(undefined);
+		setMessages([]);
+		navigate("/chat/");
+	};
+
+	const joinDirectChat = () => {
+		if (!searchUsername) return;
+		ApiRouter.post("direct-chat/join/", { username: searchUsername })
+			.then((res) => {
+				if (res.room_uuid) navigate(`/chat/user/${res.room_uuid}`);
+
+			})
+			.catch(() => showNotification("Error", "Failed to join or create direct chat.", "error"));
+		setSearchUsername("");
+	};
+	
+	const joinPrivateGroupChat = () => {
+		if (!inviteCode) return;
+		ApiRouter.post("group-chat/join-private/", { invite_code: inviteCode })
+			.then((res) => {
+				if (res.room_uuid) navigate(`/chat/group/${res.room_uuid}`);
+			})
+			.catch(() => showNotification("Error", "Failed to join group chat.", "error"));
+		setInviteCode("");
+	};
+
+	const joinPublicGroupChat = (room_uuid: string) => {
+		ApiRouter.post(`group-chat/${room_uuid}/join-public/`, {})
+		.then((res) => {
+			if (res.room_uuid) navigate(`/chat/group/${res.room_uuid}`);
+		})
+		.catch(() => showNotification("Error", "Failed to join group chat.", "error"));
+	}
+	
+
     useEffect(() => {
         if (messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -143,13 +183,13 @@ const Chat: React.FC = () => {
         <Layout>
             {contextHolder}
             <Sider width={250} theme="light" style={{ borderRight: "1px solid #ddd" }}>
-                <ChatList rooms={rooms} searchUsername={searchUsername} setSearchUsername={setSearchUsername} onSearch={() => {}} />
+                <ChatList rooms={rooms} searchUsername={searchUsername} setSearchUsername={setSearchUsername} onSearch={joinDirectChat} />
             </Sider>
             <Layout>
                 {chat_uuid && type ? (
                     <Content style={{ padding: "20px", display: "flex", flexDirection: "column", height: "80vh" }}>
                         <Row justify="space-between" align="middle" style={{ marginBottom: "10px" }}>
-                            <Button icon={<ArrowLeftOutlined />} onClick={() => navigate("/chats")} />
+                            <Button icon={<ArrowLeftOutlined />} onClick={onBackClicked} />
                             <Col flex="auto" style={{ textAlign: "center" }}>
                                 <Title level={4} style={{ margin: 0 }}>{currentRoomData?.name}</Title>
                             </Col>
@@ -174,13 +214,13 @@ const Chat: React.FC = () => {
                 ) : (
                     <Content style={{ padding: "20px", display: "flex", flexDirection: "column", height: "80vh" }}>
                         <Title level={4}>Join a group</Title>
-                        <Input.Search placeholder="Invite code..." onSearch={() => {}} allowClear value={inviteCode} onChange={(e) => setInviteCode(e.target.value)} />
+                        <Input.Search placeholder="Invite code..." onSearch={joinPrivateGroupChat} allowClear value={inviteCode} onChange={(e) => setInviteCode(e.target.value)} />
                         <Title level={4}>Public Groups</Title>
                         {publicRooms.map((room: Room) => {
                             const alreadyJoined = rooms.some((r: Room) => r.room_uuid === room.room_uuid);
                             return (
                                 <Card key={room.room_uuid} title={room.name} style={{ marginBottom: "10px" }}>
-                                    <Button type="primary" onClick={() => alreadyJoined ? navigate(`/chat/group/${room.room_uuid}`) : {}}>
+                                    <Button type="primary" onClick={() => alreadyJoined ? navigate(`/chat/group/${room.room_uuid}`) : joinPublicGroupChat(room.room_uuid)}>
                                         {alreadyJoined ? "Resume" : "Join"}
                                     </Button>
                                 </Card>
