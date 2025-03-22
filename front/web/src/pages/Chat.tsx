@@ -85,7 +85,8 @@ const Chat: React.FC = () => {
 		if (!searchUsername) return;
 		ApiRouter.post("direct-chat/join/", { username: searchUsername })
 			.then((res) => {
-				if (res.room_uuid) navigate(`/chat/user/${res.room_uuid}`);
+				if (res.success) navigate(`/chat/user/${res.room_uuid}`);
+                else showNotification("Error", res.detail, "error");
 
 			})
 			.catch(() => showNotification("Error", "Failed to join or create direct chat.", "error"));
@@ -96,7 +97,8 @@ const Chat: React.FC = () => {
 		if (!inviteCode) return;
 		ApiRouter.post("group-chat/join-private/", { invite_code: inviteCode })
 			.then((res) => {
-				if (res.room_uuid) navigate(`/chat/group/${res.room_uuid}`);
+				if (res.success) navigate(`/chat/group/${res.room_uuid}`);
+                else showNotification("Error", res.detail, "error");
 			})
 			.catch(() => showNotification("Error", "Failed to join group chat.", "error"));
 		setInviteCode("");
@@ -105,7 +107,8 @@ const Chat: React.FC = () => {
 	const joinPublicGroupChat = (room_uuid: string) => {
 		ApiRouter.post(`group-chat/${room_uuid}/join-public/`, {})
 		.then((res) => {
-			if (res.room_uuid) navigate(`/chat/group/${res.room_uuid}`);
+			if (res.success) navigate(`/chat/group/${res.room_uuid}`);
+            else showNotification("Error", res.detail, "error");
 		})
 		.catch(() => showNotification("Error", "Failed to join group chat.", "error"));
 	}
