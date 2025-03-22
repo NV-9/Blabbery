@@ -58,6 +58,7 @@ class MessageSerializer(serializers.ModelSerializer):
     """
     Message serializer
     """
+    user = UserSerializer(read_only=True)
 
     class Meta:
         model = Message
