@@ -7,6 +7,7 @@ export interface Message {
 
 export interface User {
     id: number;
+    user_uuid: string;
     username: string;
 }
 
@@ -21,18 +22,25 @@ export interface BaseProps extends AuthProps {
 export interface Room {
     id: string;
     room_uuid: string;
-    limit: number;
     name: string;
+    limit: number;
+    users: User[];
+    isGroup: boolean;
 }
 
 export interface GroupRoom extends Room {
     rules: string;
-    users: User[];
     online: User[];
     staff: User[];
 }
 
 export interface DirectRoom extends Room {
     user: User;
-    online: boolean;
 }
+
+export interface MenuItem {
+    key: string;
+    label: string;
+    onClick?: () => void;
+    disabled?: boolean;
+};
