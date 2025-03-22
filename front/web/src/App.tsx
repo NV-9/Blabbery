@@ -1,18 +1,18 @@
 import { lazy, useEffect, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
-import { Layout, Dropdown, Button } from "antd";
-import { DownOutlined } from "@ant-design/icons";
+import { Layout } from "antd";
 import { ApiRouter } from "./utils/Api";
+import { generateMenuItems } from "./utils/Menu";
 
 const Home = lazy(() => import("./pages/Home"));
 const Authenticate = lazy(() => import("./pages/Authenticate"));
 const Logout = lazy(() => import("./pages/Logout"));
-const Chats = lazy(() => import("./pages/Chats"));
 const Chat = lazy(() => import("./pages/Chat"));
 const PageNotFound = lazy(() => import("./pages/404"));
+const DropDownMenu = lazy(() => import("./utils/Menu"));
 
 const { Header, Content, Footer } = Layout;
-const authorName = import.meta.env.VITE_AUTHOR;
+const authorName = import.meta.env.VITE_AUTHOR || "a cool dude";
 
 const App: React.FC = () => {
     const navigate = useNavigate();
@@ -20,90 +20,43 @@ const App: React.FC = () => {
     const [username, setUsername] = useState("");
 
     useEffect(() => {
-        ApiRouter.get("session/")
-            .then((response) => {
-                if (response) {
-                    setIsAuthenticated(response.isAuthenticated);                    
-                }
-            })
-            .catch((error) => {
-                console.error("Session Error:", error);
-            });
+        ApiRouter.get("user/session/").then((response) => {
+            if (response) 
+                setIsAuthenticated(response.isAuthenticated);
+        })
+        .catch((error) => {
+            console.error("Session Error:", error);
+        });        
     }, []);
 
 	useEffect(() => {
-		ApiRouter.get("me/").then((res) => {
-			if (res && res.success) {
+        if (!isAuthenticated) return;
+		ApiRouter.get("user/me/").then((res) => {
+			if (res && res.username) 
 				setUsername(res.username);
-			}
 		});
 	}, [isAuthenticated]);
 
-    
-    const menuItems = isAuthenticated
-        ? 	[
-            	{
-					key: "username",
-					label: `Logged in as: ${username}`,
-					disabled: true,
-				},
-				{
-					key: "logout",
-					label: "Logout",
-					onClick: () => navigate("/logout"),
-				},
-				{
-					key: "settings",
-					label: "Settings",
-					onClick: () => navigate("/settings"),
-				},
-		]: 	[
-				{
-					key: "login",
-					label: "Login / Signup",
-					onClick: () => navigate("/authenticate"),
-				},
-		];
+    const menuItems = generateMenuItems(isAuthenticated, username, navigate);
 
     return (
-        <Layout>
-            <Header
-                style={{
-                    background: "#000000",
-                    color: "#FCEE0C",
-                    fontSize: "36px",
-                    fontFamily: "Roboto",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    position: "relative",
-                }}
-            >
-                <span>BLABBERY</span>
-                <Dropdown menu={{ items: menuItems }} placement="bottomRight" arrow>
-                    <Button
-                        type="default"
-                        style={{
-                            position: "absolute",
-                            right: "20px",
-                            top: "50%",
-                            transform: "translateY(-50%)",
-                        }}
-                    >
-                        {isAuthenticated ? username : "Login/Signup"} <DownOutlined />
-                    </Button>
-                </Dropdown>
+        <Layout style={{ display: "flex", flexDirection: "column", height: "98vh" }}>
+            <Header style={{ background: "#000000", color: "teal", fontSize: "36px", fontFamily: "Helvetica", display: "flex", justifyContent: "center", position: "relative" }}>
+                BLABBERY
+                <DropDownMenu items={menuItems} authenticated={username} />
             </Header>
-            <Content style={{ padding: "20px" }}>
+            
+            <Content style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>
                 <Routes>
                     <Route path="/" element={<Home isAuthenticated={isAuthenticated} />} />
-                    <Route path="/authenticate" element={<Authenticate isAuthenticated={isAuthenticated} setAuthenticated={setIsAuthenticated} />} />
-					<Route path="/logout" element={<Logout isAuthenticated={isAuthenticated} setAuthenticated={setIsAuthenticated} />} />
-					<Route path="/chats" element={<Chats />} />
-                    <Route path="/chat" element={<Chat />} />
+                    <Route path="/authenticate/" element={<Authenticate isAuthenticated={isAuthenticated} setAuthenticated={setIsAuthenticated} />} />
+                    <Route path="/logout/" element={<Logout isAuthenticated={isAuthenticated} setAuthenticated={setIsAuthenticated} />} />
+                    <Route path="/chat/" element={<Chat />} />
+                    <Route path="/chat/:type/:chat_uuid/" element={<Chat />} />
                     <Route path="*" element={<PageNotFound />} />
                 </Routes>
             </Content>
+
             <Footer style={{ textAlign: "center" }}>
                 Blabbery ©{new Date().getFullYear()} Created by {authorName}
             </Footer>
