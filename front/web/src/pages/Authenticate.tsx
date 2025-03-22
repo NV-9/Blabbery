@@ -6,7 +6,7 @@ import { ApiRouter } from "../utils/Api";
 import { BaseProps } from "../utils/Interfaces";
 import { NotificationType } from "../utils/Types";
 
-const { Title, Paragraph } = Typography;
+const { Paragraph } = Typography;
 
 const Authenticate: React.FC<BaseProps> = ({ isAuthenticated, setAuthenticated }) => {
     const navigate = useNavigate();
@@ -16,7 +16,7 @@ const Authenticate: React.FC<BaseProps> = ({ isAuthenticated, setAuthenticated }
 
     useEffect(() => {
         if (isAuthenticated) {
-            navigate("/chats");
+            navigate("/chat");
         }
     }, [isAuthenticated, navigate]);
 
@@ -35,20 +35,20 @@ const Authenticate: React.FC<BaseProps> = ({ isAuthenticated, setAuthenticated }
             values.date_of_birth = values.date_of_birth ? dayjs(values.date_of_birth).format("YYYY-MM-DD") : null;
         }
 
-        ApiRouter.post(isSignup ? "signup/" : "login/", values)
+        ApiRouter.post(isSignup ? "user/signup/" : "user/login/", values)
             .then((response) => {
                 if (response && response.success) {
                     showNotification(
-                        "Success 🎉",
+                        "Success :)",
                         isSignup ? "Registration successful! Welcome to Blabbery." : "Login successful! Redirecting...",
                         "success"
                     );
                     setAuthenticated(true);
-                    setTimeout(() => navigate("/chats"), 1500);
+                    setTimeout(() => navigate("/chat/"), 1500);
                 } else {
 					var errorType = isSignup ? "Signup Error" : "Login Error";
                     showNotification(
-                        `${errorType} ❌`,
+                        errorType,
                         response?.detail || "Invalid credentials. Please try again.",
                         "error"
                     );
@@ -65,17 +65,12 @@ const Authenticate: React.FC<BaseProps> = ({ isAuthenticated, setAuthenticated }
     return (
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "80vh" }}>
             {contextHolder}
-            <Card title={isSignup ? "Register for Blabbery" : "Login to Blabbery"} style={{ width: 400, textAlign: "center" }}>
-                <Title level={3}>{isSignup ? "Create an account" : "Welcome back!"}</Title>
+            <Card title={isSignup ? "Create an account" : "Welcome back!"} style={{ width: 400, textAlign: "center" }}>
                 <Paragraph>
                     {isSignup ? "Sign up to start chatting!" : "Log in to continue your conversations."}
                 </Paragraph>
                 <Form name="authForm" layout="vertical" onFinish={onSubmit}>
-                    <Form.Item
-                        label="Username"
-                        name="username"
-                        rules={[{ required: true, message: "Please enter your username!" }]}
-                    >
+                    <Form.Item label="Username" name="username" rules={[{ required: true, message: "Please enter your username!" }]}>
                         <Input placeholder="Enter your username" />
                     </Form.Item>
 
