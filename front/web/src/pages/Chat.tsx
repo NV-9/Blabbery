@@ -10,8 +10,8 @@ const { Content, Sider } = Layout;
 const { Title } = Typography;
 
 const WS_ENDPOINTS = {
-    DIRECT_CHAT: (room_uuid: string) => `${window.location.protocol === "https" ? "wss" : "ws"}://${window.location.host}/ws/chat/direct/${room_uuid}/`,
-    GROUP_CHAT: (room_uuid: string) => `${window.location.protocol === "https" ? "wss" : "ws"}://${window.location.host}/ws/chat/group/${room_uuid}/`
+    DIRECT_CHAT: (room_uuid: string) => `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}/ws/chat/direct/${room_uuid}/`,
+    GROUP_CHAT: (room_uuid: string) => `${window.location.protocol === "https:" ? "wss" : "ws"}://${window.location.host}/ws/chat/group/${room_uuid}/`
 };
 
 const ChatList: React.FC<{
