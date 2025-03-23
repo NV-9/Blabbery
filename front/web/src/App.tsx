@@ -1,17 +1,19 @@
 import { lazy, useEffect, useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
-import { Layout } from "antd";
+import { Layout, Flex } from "antd";
 import { ApiRouter } from "./utils/Api";
-import { generateMenuItems } from "./utils/Menu";
+import { generateMenuItems } from "./utils/Helpers";
+import Header from "./components/Header";
+import "./assets/App.css";
 
 const Home = lazy(() => import("./pages/Home"));
 const Authenticate = lazy(() => import("./pages/Authenticate"));
 const Logout = lazy(() => import("./pages/Logout"));
 const Chat = lazy(() => import("./pages/Chat"));
 const PageNotFound = lazy(() => import("./pages/404"));
-const DropDownMenu = lazy(() => import("./utils/Menu"));
+const DropDownMenu = lazy(() => import("./components/Menu"));
 
-const { Header, Content, Footer } = Layout;
+const { Content, Footer } = Layout;
 const authorName = import.meta.env.VITE_AUTHOR || "a cool dude";
 
 const App: React.FC = () => {
@@ -21,32 +23,29 @@ const App: React.FC = () => {
 
     useEffect(() => {
         ApiRouter.get("user/session/").then((response) => {
-            if (response) 
-                setIsAuthenticated(response.isAuthenticated);
-        })
-        .catch((error) => {
-            console.error("Session Error:", error);
-        });        
+            if (response) setIsAuthenticated(response.isAuthenticated);
+        }).catch((error) => console.error("Session Error:", error));
     }, []);
 
-	useEffect(() => {
+    useEffect(() => {
         if (!isAuthenticated) return;
-		ApiRouter.get("user/me/").then((res) => {
-			if (res && res.username) 
-				setUsername(res.username);
-		});
-	}, [isAuthenticated]);
+        ApiRouter.get("user/me/").then((res) => {
+            if (res?.username) setUsername(res.username);
+        });
+    }, [isAuthenticated]);
 
     const menuItems = generateMenuItems(isAuthenticated, username, navigate);
 
     return (
-        <Layout style={{ display: "flex", flexDirection: "column", height: "98vh" }}>
-            <Header style={{ background: "#000000", color: "teal", fontSize: "36px", fontFamily: "Helvetica", display: "flex", justifyContent: "center", position: "relative" }}>
+        <Flex vertical style={{ height: "100vh", fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif", background: "linear-gradient(to right, #141e30, #243b55)", color: "#00ffff" }}>
+            <Header style={{ background: "transparent", fontSize: "36px", fontWeight: "bold", display: "flex", justifyContent: "center", alignItems: "center", position: "relative", padding: "16px", boxShadow: "0 4px 8px rgba(0,0,0,0.5)" }}>
                 BLABBERY
-                <DropDownMenu items={menuItems} authenticated={username} />
+                <div style={{ position: "absolute", right: "20px" }}>
+                    <DropDownMenu items={menuItems} authenticated={username} />
+                </div>
             </Header>
-            
-            <Content style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>
+
+            <Content style={{ flex: 1, display: "flex", flexDirection: "column" }}>
                 <Routes>
                     <Route path="/" element={<Home isAuthenticated={isAuthenticated} />} />
                     <Route path="/authenticate/" element={<Authenticate isAuthenticated={isAuthenticated} setAuthenticated={setIsAuthenticated} />} />
@@ -57,10 +56,10 @@ const App: React.FC = () => {
                 </Routes>
             </Content>
 
-            <Footer style={{ textAlign: "center" }}>
+            <Footer style={{ textAlign: "center", padding: "10px 0", background: "transparent", color: "#00ffff" }}>
                 Blabbery ©{new Date().getFullYear()} Created by {authorName}
             </Footer>
-        </Layout>
+        </Flex>
     );
 };
 

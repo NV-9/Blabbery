@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Card, DatePicker, Form, Input, Typography, notification } from "antd";
+import { DatePicker, Form, Input, Typography, notification } from "antd";
 import dayjs from "dayjs";
 import { ApiRouter } from "../utils/Api";
 import { BaseProps } from "../utils/Interfaces";
-import { NotificationType } from "../utils/Types";
+import Button from "../components/Button";
+import Card from "../components/Card";
+import { showNotification } from "../utils/Helpers";
 
 const { Paragraph } = Typography;
 
@@ -15,19 +17,8 @@ const Authenticate: React.FC<BaseProps> = ({ isAuthenticated, setAuthenticated }
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        if (isAuthenticated) {
-            navigate("/chat");
-        }
+        if (isAuthenticated) navigate("/chat");
     }, [isAuthenticated, navigate]);
-
-    const showNotification = (title: string, message: string, type: NotificationType) => {
-        api[type]({
-            message: title,
-            description: message,
-            placement: "topRight",
-            duration: 3,
-        });
-    };
 
     const onSubmit = async (values: any) => {
         setLoading(true);
@@ -38,7 +29,7 @@ const Authenticate: React.FC<BaseProps> = ({ isAuthenticated, setAuthenticated }
         ApiRouter.post(isSignup ? "user/signup/" : "user/login/", values)
             .then((response) => {
                 if (response && response.success) {
-                    showNotification(
+                    showNotification(api, 
                         "Success :)",
                         isSignup ? "Registration successful! Welcome to Blabbery." : "Login successful! Redirecting...",
                         "success"
@@ -46,16 +37,15 @@ const Authenticate: React.FC<BaseProps> = ({ isAuthenticated, setAuthenticated }
                     setAuthenticated(true);
                     setTimeout(() => navigate("/chat/"), 1500);
                 } else {
-					var errorType = isSignup ? "Signup Error" : "Login Error";
-                    showNotification(
-                        errorType,
+                    showNotification(api, 
+                        isSignup ? "Signup Error" : "Login Error",
                         response?.detail || "Invalid credentials. Please try again.",
                         "error"
                     );
                 }
             })
             .catch(() => {
-                showNotification("Server Error 🚨", "Unable to process your request. Please try again later.", "error");
+                showNotification(api, "Server Error 🚨", "Unable to process your request. Please try again later.", "error");
             })
             .finally(() => {
                 setLoading(false);
@@ -126,13 +116,13 @@ const Authenticate: React.FC<BaseProps> = ({ isAuthenticated, setAuthenticated }
                     )}
 
                     <Form.Item>
-                        <Button type="primary" htmlType="submit" block loading={loading}>
+                        <Button htmlType="submit" loading={loading} block>
                             {isSignup ? "Register" : "Login"}
                         </Button>
                     </Form.Item>
                 </Form>
 
-                <Button type="link" onClick={() => setIsSignup(!isSignup)}>
+                <Button type="text" onClick={() => setIsSignup(!isSignup)} block>
                     {isSignup ? "Already have an account? Login" : "Don't have an account? Register"}
                 </Button>
             </Card>

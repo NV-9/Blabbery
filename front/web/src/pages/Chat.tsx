@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Layout, Card, Input, List, Avatar, Typography, Button, notification, Row, Col } from "antd";
+import { Layout, Input, List, Avatar, Typography, notification, Row, Col } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import { User, Room } from "../utils/Interfaces";
-import { NotificationType } from "../utils/Types";
 import { ApiRouter } from "../utils/Api";
-
+import { showNotification } from "../utils/Helpers";
+import Card from "../components/Card";
+import Button from "../components/Button";
 const { Content, Sider } = Layout;
 const { Title } = Typography;
 
@@ -61,9 +62,6 @@ const Chat: React.FC = () => {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const socketRef = useRef<WebSocket | null>(null);
 
-    const showNotification = (title: string, message: string, type: NotificationType) =>
-        api[type]({ message: title, description: message, placement: "topRight", duration: 3 });
-
     const sendNewMessage = () => {
         if (!newMessage || !currentUserData || !socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) return;
         const data = { type: "message", content: newMessage };
@@ -86,10 +84,10 @@ const Chat: React.FC = () => {
 		ApiRouter.post("direct-chat/join/", { username: searchUsername })
 			.then((res) => {
 				if (res.success) navigate(`/chat/user/${res.room_uuid}`);
-                else showNotification("Error", res.detail, "error");
+                else showNotification(api, "Error", res.detail, "error");
 
 			})
-			.catch(() => showNotification("Error", "Failed to join or create direct chat.", "error"));
+			.catch(() => showNotification(api, "Error", "Failed to join or create direct chat.", "error"));
 		setSearchUsername("");
 	};
 	
@@ -98,9 +96,9 @@ const Chat: React.FC = () => {
 		ApiRouter.post("group-chat/join-private/", { invite_code: inviteCode })
 			.then((res) => {
 				if (res.success) navigate(`/chat/group/${res.room_uuid}`);
-                else showNotification("Error", res.detail, "error");
+                else showNotification(api, "Error", res.detail, "error");
 			})
-			.catch(() => showNotification("Error", "Failed to join group chat.", "error"));
+			.catch(() => showNotification(api, "Error", "Failed to join group chat.", "error"));
 		setInviteCode("");
 	};
 
@@ -108,9 +106,9 @@ const Chat: React.FC = () => {
 		ApiRouter.post(`group-chat/${room_uuid}/join-public/`, {})
 		.then((res) => {
 			if (res.success) navigate(`/chat/group/${res.room_uuid}`);
-            else showNotification("Error", res.detail, "error");
+            else showNotification(api, "Error", res.detail, "error");
 		})
-		.catch(() => showNotification("Error", "Failed to join group chat.", "error"));
+		.catch(() => showNotification(api, "Error", "Failed to join group chat.", "error"));
 	}
 	
 
@@ -137,9 +135,9 @@ const Chat: React.FC = () => {
                             if (roomMessages) {
                                 setMessages(roomMessages.map((msg: any) => ({ sender: msg.user.username, content: msg.content })));
                             }
-                        }).catch(() => showNotification("Error", "Failed to fetch chat messages.", "error"));
+                        }).catch(() => showNotification(api, "Error", "Failed to fetch chat messages.", "error"));
                     }
-                }).catch(() => showNotification("Error", "Failed to fetch chat room data.", "error"));
+                }).catch(() => showNotification(api, "Error", "Failed to fetch chat room data.", "error"));
             }
         });
     }, [type, chat_uuid]);
@@ -158,7 +156,7 @@ const Chat: React.FC = () => {
             const groupRooms = groupChats?.map((roomData: any) => ({ id: roomData.id, room_uuid: roomData.room_uuid, isGroup: true, ...roomData })) || [];
             setRooms([...directRooms, ...groupRooms]);
             if (publicChats?.length > 0) setPublicRooms(publicChats);
-        }).catch(() => showNotification("Error", "Failed to fetch chat rooms.", "error"));
+        }).catch(() => showNotification(api, "Error", "Failed to fetch chat rooms.", "error"));
     }, [currentUserData]);
 
     useEffect(() => {
@@ -183,9 +181,9 @@ const Chat: React.FC = () => {
     const offlineUsers = currentRoomData?.users?.filter((user: User) => !onlineUsers.some((u) => u.user_uuid === user.user_uuid)) || [];
 
     return (
-        <Layout>
+        <Layout style={{ height: "100vh", background: "linear-gradient(to right, #141e30, #243b55)" }}>
             {contextHolder}
-            <Sider width={250} theme="light" style={{ borderRight: "1px solid #ddd" }}>
+            <Sider width={260} theme="light" style={{ background: "#ffffff", padding: "10px", boxShadow: "2px 0 5px rgba(0, 0, 0, 0.1)" }}>
                 <ChatList rooms={rooms} searchUsername={searchUsername} setSearchUsername={setSearchUsername} onSearch={joinDirectChat} />
             </Sider>
             <Layout>
@@ -198,10 +196,10 @@ const Chat: React.FC = () => {
                             </Col>
                             <div style={{ width: 48 }}></div>
                         </Row>
-                        <Card style={{ flex: 1, overflow: "auto", display: "flex", flexDirection: "column" }}>
+                        <Card style={{ flex: 1, overflowY: "auto", background: "rgba(255,255,255,0.1)", borderRadius: "12px", padding: "10px" }}>
                             {messages.map((msg, index) => (
-                                <div key={index} style={{ display: "flex", justifyContent: msg.sender === currentUserData?.username ? "flex-end" : "flex-start", padding: "5px 10px" }}>
-                                    <Card size="small" style={{ backgroundColor: msg.sender === currentUserData?.username ? "#e6f7ff" : "#f0f0f0", borderRadius: "8px", maxWidth: "70%" }}>
+                                <div key={index} style={{ display: "flex", justifyContent: msg.sender === currentUserData?.username ? "flex-end" : "flex-start", padding: "5px 10px"}}>
+                                    <Card size="small" style={{ background: msg.sender === currentUserData?.username ? "#00c6ff" : "#f1f1f1", color: msg.sender === currentUserData?.username ? "#fff" : "#000", borderRadius: "16px", maxWidth: "70%", boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)"}}>
                                         <strong>{msg.sender}</strong>
                                         <div>{msg.content}</div>
                                     </Card>
@@ -209,10 +207,12 @@ const Chat: React.FC = () => {
                             ))}
                             <div ref={messagesEndRef} />
                         </Card>
+
                         <div style={{ marginTop: "10px", display: "flex", alignItems: "center", gap: "10px" }}>
-                            <Input placeholder="Type a message..." value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onPressEnter={sendNewMessage} />
-                            <Button type="primary" onClick={sendNewMessage}>Send</Button>
+                            <Input placeholder="Type a message..." value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onPressEnter={sendNewMessage} style={{ borderRadius: "8px", flex: 1 }}/>
+                            <Button type="primary" onClick={sendNewMessage} style={{ background: "#00c6ff", border: "none", padding: "0 20px", height: "40px", fontWeight: "bold" }}>Send</Button>
                         </div>
+
                     </Content>
                 ) : (
                     <Content style={{ padding: "20px", display: "flex", flexDirection: "column", height: "80vh" }}>
@@ -233,11 +233,13 @@ const Chat: React.FC = () => {
                 )}
             </Layout>
             {chat_uuid && type && (
-                <Sider width={250} theme="light" style={{ padding: "20px", borderLeft: "1px solid #ddd" }}>
+                <Sider width={250} theme="light" style={{ padding: "20px", background: "#f9f9f9", borderLeft: "1px solid #ddd" }}>
                     <UserList title="Online Users" users={onlineUsers} />
-                    <div style={{ marginTop: "20px" }}>
-                        <UserList title="Offline Users" users={offlineUsers} />
-                    </div>
+                    {offlineUsers.length > 0 && (
+                        <div style={{ marginTop: "20px" }}>
+                            <UserList title="Offline Users" users={offlineUsers} />
+                        </div>
+                    )}
                 </Sider>
             )}
         </Layout>
