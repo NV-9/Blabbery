@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { DatePicker, Form, Input, Typography, notification } from "antd";
+import { DatePicker, Form, Input, Layout, Typography, notification } from "antd";
 import dayjs from "dayjs";
 import { ApiRouter } from "../utils/Api";
 import { BaseProps } from "../utils/Interfaces";
@@ -53,12 +53,14 @@ const Authenticate: React.FC<BaseProps> = ({ isAuthenticated, setAuthenticated }
     };
 
     return (
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "80vh" }}>
+        <Layout style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "80vh" }}>
             {contextHolder}
+
             <Card title={isSignup ? "Create an account" : "Welcome back!"} style={{ width: 400, textAlign: "center" }}>
                 <Paragraph>
                     {isSignup ? "Sign up to start chatting!" : "Log in to continue your conversations."}
                 </Paragraph>
+
                 <Form name="authForm" layout="vertical" onFinish={onSubmit}>
                     <Form.Item label="Username" name="username" rules={[{ required: true, message: "Please enter your username!" }]}>
                         <Input placeholder="Enter your username" />
@@ -66,41 +68,21 @@ const Authenticate: React.FC<BaseProps> = ({ isAuthenticated, setAuthenticated }
 
                     {isSignup && (
                         <>
-                            <Form.Item
-                                label="Email"
-                                name="email_address"
-                                rules={[
-                                    { required: true, message: "Please enter your email!" },
-                                    { type: "email", message: "Invalid email address!" },
-                                ]}
-                            >
+                            <Form.Item label="Email" name="email_address" rules={[{ required: true, message: "Please enter your email!" },{ type: "email", message: "Invalid email address!" }]}>
                                 <Input placeholder="Enter your email" />
                             </Form.Item>
-
-                            <Form.Item
-                                label="Date of Birth"
-                                name="date_of_birth"
-                                rules={[{ required: true, message: "Please enter your date of birth!" }]}
-                            >
+                            <Form.Item label="Date of Birth" name="date_of_birth" rules={[{ required: true, message: "Please enter your date of birth!" }]}>
                                 <DatePicker style={{ width: "100%" }} />
                             </Form.Item>
                         </>
                     )}
 
-                    <Form.Item
-                        label="Password"
-                        name="password"
-                        rules={[{ required: true, message: "Please enter your password!" }]}
-                    >
+                    <Form.Item label="Password" name="password" rules={[{ required: true, message: "Please enter your password!" }]}>
                         <Input.Password placeholder="Enter your password" />
                     </Form.Item>
 
                     {isSignup && (
-                        <Form.Item
-                            label="Confirm Password"
-                            name="confirm_password"
-                            dependencies={["password"]}
-                            rules={[
+                        <Form.Item label="Confirm Password" name="confirm_password" dependencies={["password"]} rules={[
                                 { required: true, message: "Please confirm your password!" },
                                 ({ getFieldValue }) => ({
                                     validator(_, value) {
@@ -125,8 +107,9 @@ const Authenticate: React.FC<BaseProps> = ({ isAuthenticated, setAuthenticated }
                 <Button type="text" onClick={() => setIsSignup(!isSignup)} block>
                     {isSignup ? "Already have an account? Login" : "Don't have an account? Register"}
                 </Button>
+                
             </Card>
-        </div>
+        </Layout>
     );
 };
 

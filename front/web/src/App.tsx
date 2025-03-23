@@ -45,7 +45,7 @@ const App: React.FC = () => {
                 </div>
             </Header>
 
-            <Content style={{ flex: 1, display: "flex", flexDirection: "column", background: "linear-gradient(to right, #6a11cb, #2575fc)" }}>
+            <Content style={{ flex: 1, display: "flex", flexDirection: "column" }}>
                 <Routes>
                     <Route path="/" element={<Home isAuthenticated={isAuthenticated} />} />
                     <Route path="/authenticate/" element={<Authenticate isAuthenticated={isAuthenticated} setAuthenticated={setIsAuthenticated} />} />
